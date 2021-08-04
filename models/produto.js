@@ -1,6 +1,6 @@
 const sequelize = require('../database/');
 const { DataTypes } = require('sequelize');
-const Usuario = require('./usuario');
+const Comanda = require('./comanda');
 
 
 const Produto = sequelize.define('Produto', {
@@ -19,7 +19,5 @@ const Produto = sequelize.define('Produto', {
         allowNull: false
     }
 });
-
-Produto.belongsToMany(Usuario, { through: 'UsuarioProduto'});
 
 module.exports = Produto;

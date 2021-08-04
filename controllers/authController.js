@@ -1,0 +1,38 @@
+const { Usuario } = require('../models/usuario');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+
+const MAXAGE = 24 * 60 * 60; //24 hours
+
+const createToken = (id) => {
+    return jwt.sign({ id }, process.env.SECRET, {
+        expiresIn: MAXAGE
+    });
+}
+
+const saltPassword = async (password) => {
+    const salt = await bcrypt.genSalt();
+    return pwd = await bcrypt.hash(password, salt);
+}
+
+const createUsuario = async (req, res) => {
+    var { nomeUsuario, telefoneUsuario, email, senha } = req.body;
+
+    senha = await saltPassword(senha);
+    
+    try {
+        const usuario = await Usuario.create({ nomeUsuario, telefoneUsuario, email, senha });
+        const token = createToken(usuario.id);
+        res.cookie('jwt', token, { httpOnly: true, maxAge: MAXAGE * 1000 });
+        res.status(201).json({ usuario: usuario });
+      }
+    catch(err) {
+        let msg = err.errors[0].message;
+        console.log(err);
+        res.status(400).json(msg);
+
+    }
+}
+
+
+module.exports = { createUsuario };

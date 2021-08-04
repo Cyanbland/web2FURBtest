@@ -1,25 +1,60 @@
 const sequelize = require('../database/');
 const { DataTypes } = require('sequelize');
-const Produto = require('./produto');
+const bcrypt = require('bcrypt');
 
 
 const Usuario = sequelize.define('Usuario', {
     idUsuario: {
         type: DataTypes.UUID,
-        defaultValue: Sequelize.UUIDV4,
+        defaultValue: DataTypes.UUIDV4,
         allowNull: false,
         primaryKey: true
     },
     nomeUsuario: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        validate: {
+            min: 3,
+            isAlphanumeric: true
+        }
     },
     telefoneUsuario: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+            isNumeric: true,
+            min: 6
+        }
+    },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+            isEmail: true
+        }
+    },
+    senha: {
         type: DataTypes.STRING,
         allowNull: false
     }
 });
 
-Usuario.belongsToMany(Produto, { through: 'UsuarioProduto'});
 
-module.exports = Usuario;
+
+const loginUsuario = async (email, senha) => {
+    const usuario = await sequelize.findOne(email);
+
+    if (usuario) {
+        const auth = await bcrypt.compare(senha, usuario.senha);
+        
+        if (auth) {
+            return user;
+        }
+    }
+    throw Error('Invalid login!');
+}
+
+
+module.exports = { Usuario, loginUsuario };
