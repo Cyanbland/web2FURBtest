@@ -32,7 +32,7 @@ const registerProduto = async ({ nome, preco }) => {
     return await Produto.create({ nome, preco });
 };
 
-const getProduto = async(id) => {
+const getProduto = async (id) => {
     return await Produto.findByPk(id);
 };
 

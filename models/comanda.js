@@ -1,7 +1,7 @@
 const sequelize = require('../database/');
 const { DataTypes } = require('sequelize');
-const { Produto } = require('./produto');
-const { Usuario } = require('./usuario');
+const { Produto, getProduto } = require('./produto');
+const { Usuario, getUsuario } = require('./usuario');
 
 
 const Comanda = sequelize.define('Comanda', {
@@ -37,6 +37,13 @@ const getUsuarioFromComanda = async (idComanda) => {
     return await comanda.getUsuario();
 };
 
+const getAssociatedProdutos = async (idComanda) => {
+    const comanda = await Comanda.findByPk(idComanda);
+    const produtos = await comanda.getProdutos();
+
+    return produtos;
+}
+
 const registerComanda = async ({ idUsuario, nomeUsuario, telefoneUsuario, produtos }) => {
     return comanda = await Comanda.create({ idUsuario, nomeUsuario, telefoneUsuario, produtos });
 };
@@ -48,6 +55,14 @@ const associateUsuarioToComanda = async (idUsuario, idComanda) => {
     return await comanda.setUsuario(usuario);
 };
 
+const associateProdutoToComanda = async (idComanda, idProduto) => {
+    const comanda = await Comanda.findByPk(idComanda);
+    const produto = await Produto.findByPk(idProduto, { attributes: ['id', 'nome', 'preco']});
+    console.log("adicionado", produto)
+
+    return await comanda.addProduto(produto);
+}
 
 
-module.exports = { Comanda, getComanda, getComandas, getUsuarioFromComanda, registerComanda, associateUsuarioToComanda };
+
+module.exports = { Comanda, getComanda, getComandas, getUsuarioFromComanda, getAssociatedProdutos, registerComanda, associateUsuarioToComanda, associateProdutoToComanda };

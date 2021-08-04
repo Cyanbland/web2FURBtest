@@ -1,6 +1,6 @@
-const { getComanda, getComandas, getUsuarioFromComanda, associateUsuarioToComanda, registerComanda } = require('../models/comanda');
-const { getProdutoById } = require('../models/produto');
-const { getUsuarioById } = require('../models/usuario');
+const { getComanda, getComandas, getUsuarioFromComanda, getAssociatedProdutos, associateUsuarioToComanda, associateProdutoToComanda, registerComanda } = require('../models/comanda');
+const { getProduto } = require('../models/produto');
+const { getUsuario } = require('../models/usuario');
 
 const getAllComandas = async (req, res) => {
     try {
@@ -23,15 +23,29 @@ const getAllComandas = async (req, res) => {
 };
 
 const getComandaById = async (req, res) => {
-    const id = req.params.id;
+    const idParam = req.params.id;
 
     var obj = {};
+    var aux = {};
 
     try {
-        const comanda = await getComanda(id);
+        const comanda = await getComanda(idParam);
         const usuarioComanda = await getUsuarioFromComanda(comanda.dataValues.idComanda);
 
-        obj = { idUsuario: usuarioComanda.idUsuario, nomeUsuario: usuarioComanda.nomeUsuario, telefoneUsuario: usuarioComanda.telefoneUsuario, produtos: [] }
+        const produtos = await getAssociatedProdutos(comanda.idComanda);
+
+        for (let i = 0; i < produtos.length; i++) {
+            let buffer = produtos[i];
+            let { id, nome, preco } = buffer;
+
+            aux = {...aux, id, nome, preco};
+            console.log(aux)
+            //ARRUMAR AQUI
+        }
+
+        console.log(await getAssociatedProdutos(comanda.idComanda))
+
+        obj = { idUsuario: usuarioComanda.idUsuario, nomeUsuario: usuarioComanda.nomeUsuario, telefoneUsuario: usuarioComanda.telefoneUsuario, produtos: [aux] }
 
         res.status(200).json(obj);
     }
@@ -51,7 +65,7 @@ const createComanda = async (req, res) => {
     var productValidationErrorMsg = '';
 
     try {
-        const usuarioComanda = await getUsuarioById(idUsuario);
+        const usuarioComanda = await getUsuario(idUsuario);
 
         //user already exists
         if (usuarioComanda) {
@@ -72,7 +86,7 @@ const createComanda = async (req, res) => {
         for (let i = 0; i < produtos.length; i++) {
             let id = produtos[i].id;
 
-            const produto = await getProdutoById(id);
+            const produto = await getProduto(id);
 
             //product exists
             if (produto) {
@@ -98,6 +112,11 @@ const createComanda = async (req, res) => {
 
     const comanda = await registerComanda({ idUsuario, nomeUsuario, telefoneUsuario, produtos });
     await associateUsuarioToComanda(idUsuario, comanda.idComanda);
+
+    for (let i = 0; i < produtos.length; i++) {
+        console.log(produtos[i])
+        await associateProdutoToComanda(comanda.idComanda, produtos[i].id);
+    }
 
     const usuarioComanda = await getUsuarioFromComanda(comanda.idComanda);
 

@@ -62,14 +62,14 @@ const loginUsuario = async (email, senha) => {
     throw Error('Invalid credentials!');
 };
 
-const registerUsuario = async ({nomeUsuario, telefoneUsuario, email, senha}) => {
+const registerUsuario = async ( {nomeUsuario, telefoneUsuario, email, senha} ) => {
     return await Usuario.create({ nomeUsuario, telefoneUsuario, email, senha, isAdmin: false });
 };
 
-const getUsuarioById = async(id) => {
+const getUsuario = async(id) => {
     return await Usuario.findByPk(id);
 };
 
 
 
-module.exports = { Usuario, loginUsuario, registerUsuario, getUsuarioById };
+module.exports = { Usuario, loginUsuario, registerUsuario, getUsuario };
