@@ -6,6 +6,7 @@ const produtoController = require('../controllers/produtoController');
 const routes = Router();
 
 routes.get('/produtos', produtoController.getAllProdutos);
+routes.get('/produtos/:id', produtoController.getProdutoById);
 routes.post('/produtos', produtoController.createProduto);
 
 routes.get('/comandas', comandasController.getAllComandas);

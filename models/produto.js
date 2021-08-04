@@ -32,7 +32,7 @@ const registerProduto = async ({ nome, preco }) => {
     return await Produto.create({ nome, preco });
 };
 
-const getProdutoById = async(id) => {
+const getProduto = async(id) => {
     return await Produto.findByPk(id);
 };
 
@@ -42,5 +42,5 @@ const getProdutos = async () => {
     return produtos;
 };
 
-module.exports = { registerProduto, getProdutoById, getProdutos, Produto };
+module.exports = { registerProduto, getProduto, getProdutos, Produto };
 
