@@ -14,7 +14,7 @@ const Usuario = sequelize.define('Usuario', {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-            min: 3,
+            len: [3, 40],
             isAlphanumeric: true
         }
     },
@@ -24,7 +24,7 @@ const Usuario = sequelize.define('Usuario', {
         unique: true,
         validate: {
             isNumeric: true,
-            min: 6
+            len: [6, 16]
         }
     },
     email: {
@@ -53,7 +53,7 @@ const loginUsuario = async (email, senha) => {
             return user;
         }
     }
-    throw Error('Invalid login!');
+    throw Error('Invalid credentials!');
 }
 
 

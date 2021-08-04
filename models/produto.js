@@ -1,6 +1,5 @@
 const sequelize = require('../database/');
 const { DataTypes } = require('sequelize');
-const Comanda = require('./comanda');
 
 
 const Produto = sequelize.define('Produto', {
@@ -8,15 +7,25 @@ const Produto = sequelize.define('Produto', {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         allowNull: false,
-        primaryKey: true
+        primaryKey: true,
+        unique: true
     },
     nome: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        validate: {
+            len: [1, 40],
+            isAlphanumeric: true
+        }
     },
     preco: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        validate: {
+            isNumeric: true,
+            isDecimal: true,
+            min: 0
+        }
     }
 });
 
