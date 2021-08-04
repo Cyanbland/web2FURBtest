@@ -24,8 +24,9 @@ const createUsuario = async (req, res) => {
         const usuario = await registerUsuario({ nomeUsuario, telefoneUsuario, email, senha });
         const token = createToken(usuario.idUsuario);
         res.cookie('jwt', token, { httpOnly: true, maxAge: MAXAGE * 1000 });
-        res.status(201).json({ usuario: usuario });
-      }
+        const data = { usuario: usuario.idUsuario, nomeUsuario: usuario.nomeUsuario, telefoneUsuario: usuario.telefoneUsuario, email: usuario.email }
+        res.status(201).json(data);
+    }
     catch(err) {
         var msg = '';
         try {

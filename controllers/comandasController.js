@@ -7,17 +7,12 @@ const getAllComandas = async (req, res) => {
         var usuariosComandas = [];
 
         for (let i = 0; i < comandas.length; i++) {
-            console.log(comandas[i])
             let usuario = await getUsuarioFromComanda(comandas[i].dataValues.idComanda);
-            console.log(usuario)
             let { idUsuario, nomeUsuario, telefoneUsuario } = usuario.dataValues;
 
             usuariosComandas.push({ idUsuario, nomeUsuario, telefoneUsuario });
-
-
         };
         
-        console.log(usuariosComandas)
         res.status(200).json(usuariosComandas);
     }
     catch(err) {
@@ -29,9 +24,28 @@ const getAllComandas = async (req, res) => {
 const getComandaById = async (req, res) => {
     const id = req.params.id;
 
+    var obj = {};
+
     try {
-        const comanda = getComanda(id);
-        res.status(200).json({ comanda })
+        const comanda = await getComanda(id);
+        const usuarioComanda = await getUsuarioFromComanda(comanda.dataValues.idComanda);
+
+        obj = { idUsuario: usuarioComanda.idUsuario, nomeUsuario: usuarioComanda.nomeUsuario, telefoneUsuario: usuarioComanda.telefoneUsuario, produtos: [] }
+
+        res.status(200).json(obj);
+
+        
+
+        for (let i = 0; i < comandas.length; i++) {
+            let usuario = await getUsuarioFromComanda(comandas[i].dataValues.idComanda);
+            let { idUsuario, nomeUsuario, telefoneUsuario } = usuario.dataValues;
+
+            usuariosComandas.push({ idUsuario, nomeUsuario, telefoneUsuario });
+
+
+        };
+        
+        res.status(200).json(usuariosComandas);
     }
     catch(err) {
         let msg = err.errors[0].message;

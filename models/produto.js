@@ -14,8 +14,7 @@ const Produto = sequelize.define('Produto', {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-            len: [1, 40],
-            isAlphanumeric: true
+            len: [1, 40]
         }
     },
     preco: {
@@ -29,4 +28,19 @@ const Produto = sequelize.define('Produto', {
     }
 });
 
-module.exports = Produto;
+const registerProduto = async ({ nome, preco }) => {
+    return await Produto.create({ nome, preco });
+};
+
+const getProdutoById = async(id) => {
+    return await Produto.findByPk(id);
+};
+
+const getProdutos = async () => {
+    const produtos = await Produto.findAll();
+
+    return produtos;
+};
+
+module.exports = { registerProduto, getProdutoById, getProdutos, Produto };
+
