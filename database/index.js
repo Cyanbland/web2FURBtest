@@ -6,7 +6,7 @@ const sequelize = new Sequelize({
   });
 
 const syncDb = async () => {
-    await sequelize.sync();
+    await sequelize.sync({});
     console.log("Models synchronized.");
 }
 

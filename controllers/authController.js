@@ -1,4 +1,4 @@
-const { Usuario } = require('../models/usuario');
+const { registerUsuario } = require('../models/usuario');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
@@ -21,16 +21,22 @@ const createUsuario = async (req, res) => {
     senha = await saltPassword(senha);
     
     try {
-        const usuario = await Usuario.create({ nomeUsuario, telefoneUsuario, email, senha });
-        const token = createToken(usuario.id);
+        const usuario = await registerUsuario({ nomeUsuario, telefoneUsuario, email, senha });
+        const token = createToken(usuario.idUsuario);
         res.cookie('jwt', token, { httpOnly: true, maxAge: MAXAGE * 1000 });
         res.status(201).json({ usuario: usuario });
       }
     catch(err) {
-        let msg = err.errors[0].message;
+        var msg = '';
+        try {
+            msg = err.errors[0].message;
+        }
+        catch(e) {
+            msg = err;
+        }
+
         console.log(err);
         res.status(400).json(msg);
-
     }
 }
 
