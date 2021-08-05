@@ -9,6 +9,7 @@ const getAllComandas = async (req, res) => {
 
         for (let i = 0; i < comandas.length; i++) {
             let usuario = await getUsuarioFromComanda(comandas[i].dataValues.idComanda);
+
             let { idUsuario, nomeUsuario, telefoneUsuario } = usuario.dataValues;
 
             usuariosComandas.push({ idUsuario, nomeUsuario, telefoneUsuario });
@@ -25,8 +26,9 @@ const getAllComandas = async (req, res) => {
 const getComandaById = async (req, res) => {
     const idParam = req.params.id;
 
+    const arr = [];
     var obj = {};
-    var aux = {};
+
 
     try {
         const comanda = await getComanda(idParam);
@@ -34,18 +36,19 @@ const getComandaById = async (req, res) => {
 
         const produtos = await getAssociatedProdutos(comanda.idComanda);
 
-        for (let i = 0; i < produtos.length; i++) {
-            let buffer = produtos[i];
-            let { id, nome, preco } = buffer;
+        var objects = produtos.map( (produto) => {
+            let aux = {};
+            let { id, nome, preco } = produto;
+            aux['id'] = id;
+            aux['nome'] = nome;
+            aux['preco'] = preco;
+            
+            return aux;
+        });
 
-            aux = {...aux, id, nome, preco};
-            console.log(aux)
-            //ARRUMAR AQUI
-        }
+        arr.push(objects);
 
-        console.log(await getAssociatedProdutos(comanda.idComanda))
-
-        obj = { idUsuario: usuarioComanda.idUsuario, nomeUsuario: usuarioComanda.nomeUsuario, telefoneUsuario: usuarioComanda.telefoneUsuario, produtos: [aux] }
+        obj = { idUsuario: usuarioComanda.idUsuario, nomeUsuario: usuarioComanda.nomeUsuario, telefoneUsuario: usuarioComanda.telefoneUsuario, produtos: arr[0] }
 
         res.status(200).json(obj);
     }
@@ -114,7 +117,6 @@ const createComanda = async (req, res) => {
     await associateUsuarioToComanda(idUsuario, comanda.idComanda);
 
     for (let i = 0; i < produtos.length; i++) {
-        console.log(produtos[i])
         await associateProdutoToComanda(comanda.idComanda, produtos[i].id);
     }
 

@@ -58,7 +58,6 @@ const associateUsuarioToComanda = async (idUsuario, idComanda) => {
 const associateProdutoToComanda = async (idComanda, idProduto) => {
     const comanda = await Comanda.findByPk(idComanda);
     const produto = await Produto.findByPk(idProduto, { attributes: ['id', 'nome', 'preco']});
-    console.log("adicionado", produto)
 
     return await comanda.addProduto(produto);
 }
