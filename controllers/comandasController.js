@@ -1,4 +1,4 @@
-const { getComanda, getComandas, getUsuarioFromComanda, getAssociatedProdutos, associateUsuarioToComanda, associateProdutoToComanda, registerComanda } = require('../models/comanda');
+const { getComanda, getComandas, getUsuarioFromComanda, getAssociatedProdutos, associateUsuarioToComanda, associateProdutoToComanda, registerComanda, destroyComandaById } = require('../models/comanda');
 const { getProduto } = require('../models/produto');
 const { getUsuario } = require('../models/usuario');
 
@@ -127,4 +127,34 @@ const createComanda = async (req, res) => {
         .json({ id: comanda.idComanda, idUsuario: usuarioComanda.idUsuario, nomeUsuario: usuarioComanda.nomeUsuario, telefoneUsuario: usuarioComanda.telefoneUsuario, produtos: produtos});
 };
 
-module.exports = { getComandaById, getAllComandas, createComanda };
+const deleteComanda = async (req, res) => {
+    const idParam = req.params.id;
+
+    var returnedObj = {};
+    var msg = '';
+
+    try {
+        const comanda = await getComanda(idParam);
+        if (comanda) {
+            await destroyComandaById(idParam);
+
+            msg = {text: 'comanda removida'};
+            returnedObj = {success: msg};
+        }
+        else {
+            msg = {text: 'comanda inexistente'};
+            returnedObj = {error: msg};
+        }
+
+
+
+        res.status(200).json(returnedObj);
+    }
+    catch(err) {
+        let msg = 'Not found!';
+        console.log(err);
+        res.status(404).json({ error: msg });
+    }
+};
+
+module.exports = { getComandaById, getAllComandas, createComanda, deleteComanda };

@@ -11,7 +11,8 @@ routes.post('/produtos', produtoController.createProduto);
 
 routes.get('/comandas', comandasController.getAllComandas);
 routes.get('/comandas/:id', comandasController.getComandaById);
-routes.post('/comandas', comandasController.createComanda)
+routes.post('/comandas', comandasController.createComanda);
+routes.delete('/comandas/:id', comandasController.deleteComanda);
 
 routes.post('/registrar', authController.createUsuario);
 

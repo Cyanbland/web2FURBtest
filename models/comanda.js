@@ -60,8 +60,14 @@ const associateProdutoToComanda = async (idComanda, idProduto) => {
     const produto = await Produto.findByPk(idProduto, { attributes: ['id', 'nome', 'preco']});
 
     return await comanda.addProduto(produto);
-}
+};
+
+const destroyComandaById = async (idComanda) => {
+    const comanda = Comanda.findByPk(idComanda);
+
+    return await Comanda.destroy({ where: { idComanda } });
+};
 
 
 
-module.exports = { Comanda, getComanda, getComandas, getUsuarioFromComanda, getAssociatedProdutos, registerComanda, associateUsuarioToComanda, associateProdutoToComanda };
+module.exports = { Comanda, getComanda, getComandas, getUsuarioFromComanda, getAssociatedProdutos, registerComanda, associateUsuarioToComanda, associateProdutoToComanda, destroyComandaById };
