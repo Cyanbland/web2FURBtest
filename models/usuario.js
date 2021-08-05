@@ -47,22 +47,24 @@ const Usuario = sequelize.define('Usuario', {
     }
 });
 
-
-
 const loginUsuario = async (email, senha) => {
-    const usuario = await sequelize.findOne(email);
+    const usuario = await Usuario.findOne({ where: { email } });
 
     if (usuario) {
+        console.log(senha)
         const auth = await bcrypt.compare(senha, usuario.senha);
         
         if (auth) {
-            return user;
+            return usuario;
         }
     }
-    throw Error('Invalid credentials!');
 };
 
 const registerUsuario = async ( {nomeUsuario, telefoneUsuario, email, senha} ) => {
+    if (email === process.env.ADMINEMAIL) {
+        return await Usuario.create({ nomeUsuario, telefoneUsuario, email, senha, isAdmin: true });
+    }
+
     return await Usuario.create({ nomeUsuario, telefoneUsuario, email, senha, isAdmin: false });
 };
 

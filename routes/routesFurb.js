@@ -2,6 +2,7 @@ const { Router } = require('express');
 const comandasController = require('../controllers/comandasController');
 const authController = require('../controllers/authController');
 const produtoController = require('../controllers/produtoController');
+const { checkIfAdmin } = require('../middlewares/authMiddleware');
 
 const routes = Router();
 
@@ -13,9 +14,10 @@ routes.get('/comandas', comandasController.getAllComandas);
 routes.get('/comandas/:id', comandasController.getComandaById);
 routes.post('/comandas', comandasController.createComanda);
 routes.delete('/comandas/:id', comandasController.deleteComanda);
-routes.put('/comandas/:id', comandasController.updateComanda);
+routes.put('/comandas/:id', checkIfAdmin, comandasController.updateComanda);
 
 routes.post('/registrar', authController.createUsuario);
+routes.post('/login', authController.login);
 
 
 

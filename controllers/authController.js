@@ -1,4 +1,4 @@
-const { registerUsuario } = require('../models/usuario');
+const { registerUsuario, loginUsuario } = require('../models/usuario');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
@@ -25,7 +25,7 @@ const createUsuario = async (req, res) => {
         const token = createToken(usuario.idUsuario);
         res.cookie('jwt', token, { httpOnly: true, maxAge: MAXAGE * 1000 });
         const data = { usuario: usuario.idUsuario, nomeUsuario: usuario.nomeUsuario, telefoneUsuario: usuario.telefoneUsuario, email: usuario.email }
-        res.status(201).json(data);
+        res.status(201).json({ data, token });
     }
     catch(err) {
         var msg = '';
@@ -39,7 +39,25 @@ const createUsuario = async (req, res) => {
         console.log(err);
         res.status(400).json(msg);
     }
-}
+};
+
+const login = async (req, res) => {
+    const { email, senha } = req.body;
+
+    try {
+        const usuario = await loginUsuario(email, senha);
+
+        const token = createToken(usuario.idUsuario);
+
+        res.cookie('jwt', token, { httpOnly: true, maxAge: MAXAGE * 1000 });
+        const data = { usuario: usuario.idUsuario, nomeUsuario: usuario.nomeUsuario, telefoneUsuario: usuario.telefoneUsuario, email: usuario.email }
+        res.status(200).json({ data, token });
+    }
+    catch(err) {
+        console.log(err);
+        res.status(400).json({ error: 'Invalid credentials!' });
+    }
+};
 
 
-module.exports = { createUsuario };
+module.exports = { createUsuario, login };
