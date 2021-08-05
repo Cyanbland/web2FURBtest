@@ -1,4 +1,4 @@
-const { getComanda, getComandas, getUsuarioFromComanda, getAssociatedProdutos, associateUsuarioToComanda, associateProdutoToComanda, registerComanda, destroyComandaById } = require('../models/comanda');
+const { getComanda, getComandas, getUsuarioFromComanda, getAssociatedProdutos, associateUsuarioToComanda, associateProdutoToComanda, registerComanda, destroyComandaById, saveComandaChangesById, checkIfProdutoInComanda } = require('../models/comanda');
 const { getProduto } = require('../models/produto');
 const { getUsuario } = require('../models/usuario');
 
@@ -74,17 +74,14 @@ const createComanda = async (req, res) => {
         if (usuarioComanda) {
             if (usuarioComanda.nomeUsuario !== nomeUsuario || usuarioComanda.telefoneUsuario !== telefoneUsuario) {
                 userValidationErrorMsg = 'Invalid user credentials';
+                return res.status(400).json({ error: userValidationErrorMsg });
             }
         }
         //user doesn´t exist
         else {
             userValidationErrorMsg = 'User is not registered';
-        }
-
-        if (userValidationErrorMsg !== '') {
             return res.status(400).json({ error: userValidationErrorMsg });
         }
-
 
         for (let i = 0; i < produtos.length; i++) {
             let id = produtos[i].id;
@@ -94,17 +91,15 @@ const createComanda = async (req, res) => {
             //product exists
             if (produto) {
                 if (produto.nome !== produtos[i].nome || produto.preco !== produtos[i].preco) {
-                    productValidationErrorMsg = 'Invalid product credentials';
+                    productValidationErrorMsg = 'Invalid product data informed';
+                    return res.status(400).json({ error: productValidationErrorMsg });
                 }
             }
             //product doesn´t exist
             else {
                 productValidationErrorMsg = 'Product is not registered';
+                return res.status(400).json({ error: productValidationErrorMsg });
             }
-        }
-
-        if (productValidationErrorMsg !== '') {
-            return res.status(400).json({ error: productValidationErrorMsg });
         }
 
     }
@@ -124,6 +119,88 @@ const createComanda = async (req, res) => {
 
     res
         .status(201)
+        .json({ id: comanda.idComanda, idUsuario: usuarioComanda.idUsuario, nomeUsuario: usuarioComanda.nomeUsuario, telefoneUsuario: usuarioComanda.telefoneUsuario, produtos: produtos});
+};
+
+const updateComanda = async (req, res) => {
+    const idParam = req.params.id;
+    var { idUsuario, nomeUsuario, telefoneUsuario, produtos } = req.body;
+
+    const comanda = await getComanda(idParam);
+
+    if (!comanda) {
+        return res.status(404).json({ error: 'Comanda not found!' })
+    }
+
+    var userValidationErrorMsg = '';
+    var productValidationErrorMsg = '';
+
+    try {
+        //USER VALIDATION
+
+        //blocks direct user data updates
+        if (nomeUsuario || telefoneUsuario) {
+            return res.status(400).json({ error: 'Changing user data is not allowed. Update the user id instead.' })
+        }
+        //checks if user is to be changed
+        else if (idUsuario) {
+            const usuarioComanda = await getUsuario(idUsuario);
+
+            //user doesn´t exist
+            if (!usuarioComanda) {
+                userValidationErrorMsg = 'User is not registered';
+                return res.status(400).json({ error: userValidationErrorMsg });
+            }
+
+            await associateUsuarioToComanda(idUsuario, comanda.idComanda);
+        }
+
+        //PRODUCTS VALIDATION
+
+        var productIds = [];
+
+        if (produtos) {
+            for (let i = 0; i < produtos.length; i++) {
+                let id = produtos[i].id;
+    
+                let produto = await getProduto(id);
+    
+                //product exists
+                if (produto) {
+                    let produtoInComanda = await checkIfProdutoInComanda(produto.id, comanda.idComanda);
+                    //produto is not already in Comanda
+                    if (!produtoInComanda || productIds.includes(produto.id)) {
+                        productValidationErrorMsg = 'New products should only be added in POST route';
+                        return res.status(400).json({ error: productValidationErrorMsg });
+                    }
+                    //wrong product data informed
+                    else if (produto.nome !== produtos[i].nome || produto.preco !== produtos[i].preco) {
+                        productValidationErrorMsg = 'Invalid product data informed';
+                        return res.status(400).json({ error: productValidationErrorMsg });
+                    }
+
+                }
+                //product doesn´t exist
+                else {
+                    productValidationErrorMsg = 'Product is not registered';
+                    return res.status(400).json({ error: productValidationErrorMsg });
+                }
+                productIds.push(produto.id);
+                await associateProdutoToComanda(comanda.idComanda, produto.id)
+            }
+        }
+    }
+    catch(err) {
+        console.log(err);
+    }
+    
+    await saveComandaChangesById(comanda.idComanda);
+
+    const usuarioComanda = await getUsuarioFromComanda(comanda.idComanda);
+    
+
+    res
+        .status(200)
         .json({ id: comanda.idComanda, idUsuario: usuarioComanda.idUsuario, nomeUsuario: usuarioComanda.nomeUsuario, telefoneUsuario: usuarioComanda.telefoneUsuario, produtos: produtos});
 };
 
@@ -157,4 +234,4 @@ const deleteComanda = async (req, res) => {
     }
 };
 
-module.exports = { getComandaById, getAllComandas, createComanda, deleteComanda };
+module.exports = { getComandaById, getAllComandas, createComanda, deleteComanda, updateComanda };

@@ -63,11 +63,25 @@ const associateProdutoToComanda = async (idComanda, idProduto) => {
 };
 
 const destroyComandaById = async (idComanda) => {
-    const comanda = Comanda.findByPk(idComanda);
-
     return await Comanda.destroy({ where: { idComanda } });
 };
 
+const saveComandaChangesById = async (idComanda) => {
+    const comanda = await Comanda.findByPk(idComanda);
 
+    return await comanda.save(); 
+};
 
-module.exports = { Comanda, getComanda, getComandas, getUsuarioFromComanda, getAssociatedProdutos, registerComanda, associateUsuarioToComanda, associateProdutoToComanda, destroyComandaById };
+const checkIfProdutoInComanda = async (idProduto, idComanda) => {
+    const comanda = await Comanda.findByPk(idComanda);
+    const produto = await Produto.findByPk(idProduto);
+
+    if (await comanda.hasProduto(produto)) {
+        return true;
+    }
+
+    return false; 
+
+};
+
+module.exports = { Comanda, getComanda, getComandas, getUsuarioFromComanda, getAssociatedProdutos, registerComanda, associateUsuarioToComanda, associateProdutoToComanda, destroyComandaById, saveComandaChangesById, checkIfProdutoInComanda };

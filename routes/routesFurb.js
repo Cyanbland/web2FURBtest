@@ -13,6 +13,7 @@ routes.get('/comandas', comandasController.getAllComandas);
 routes.get('/comandas/:id', comandasController.getComandaById);
 routes.post('/comandas', comandasController.createComanda);
 routes.delete('/comandas/:id', comandasController.deleteComanda);
+routes.put('/comandas/:id', comandasController.updateComanda);
 
 routes.post('/registrar', authController.createUsuario);
 
