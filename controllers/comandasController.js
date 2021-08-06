@@ -3,6 +3,7 @@ const { getProduto } = require('../models/produto');
 const { getUsuario } = require('../models/usuario');
 
 const getAllComandas = async (req, res) => {
+    //Shouldn´t return the associated products
     try {
         const comandas = await getComandas();
         var usuariosComandas = [];
@@ -15,11 +16,11 @@ const getAllComandas = async (req, res) => {
             usuariosComandas.push({ idUsuario, nomeUsuario, telefoneUsuario });
         };
         
-        res.status(200).json(usuariosComandas);
+        return res.status(200).json(usuariosComandas);
     }
     catch(err) {
         console.log(err)
-        res.status(400).json(err);
+        return res.status(400).json(err);
     }
 };
 
@@ -50,12 +51,12 @@ const getComandaById = async (req, res) => {
 
         obj = { idUsuario: usuarioComanda.idUsuario, nomeUsuario: usuarioComanda.nomeUsuario, telefoneUsuario: usuarioComanda.telefoneUsuario, produtos: arr[0] }
 
-        res.status(200).json(obj);
+        return res.status(200).json(obj);
     }
     catch(err) {
         let msg = 'Not found!';
         console.log(err);
-        res.status(404).json({ error: msg });
+        return res.status(404).json({ error: msg });
     }
 };
 
@@ -117,7 +118,7 @@ const createComanda = async (req, res) => {
 
     const usuarioComanda = await getUsuarioFromComanda(comanda.idComanda);
 
-    res
+    return res
         .status(201)
         .json({ id: comanda.idComanda, idUsuario: usuarioComanda.idUsuario, nomeUsuario: usuarioComanda.nomeUsuario, telefoneUsuario: usuarioComanda.telefoneUsuario, produtos: produtos});
 };
@@ -199,7 +200,7 @@ const updateComanda = async (req, res) => {
     const usuarioComanda = await getUsuarioFromComanda(comanda.idComanda);
     
 
-    res
+    return res
         .status(200)
         .json({ id: comanda.idComanda, idUsuario: usuarioComanda.idUsuario, nomeUsuario: usuarioComanda.nomeUsuario, telefoneUsuario: usuarioComanda.telefoneUsuario, produtos: produtos});
 };
@@ -216,21 +217,18 @@ const deleteComanda = async (req, res) => {
             await destroyComandaById(idParam);
 
             msg = {text: 'comanda removida'};
-            returnedObj = {success: msg};
+            returnedObj = { success: msg };
+            return res.status(200).json(returnedObj);
         }
         else {
-            msg = {text: 'comanda inexistente'};
-            returnedObj = {error: msg};
+            msg = {text: 'comanda não encontrada'};
+            return res.status(404).json({ error: msg });
         }
-
-
-
-        res.status(200).json(returnedObj);
     }
     catch(err) {
         let msg = 'Not found!';
         console.log(err);
-        res.status(404).json({ error: msg });
+        return res.status(404).json({ error: msg });
     }
 };
 

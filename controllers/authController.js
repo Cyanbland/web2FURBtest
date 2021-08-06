@@ -18,14 +18,17 @@ const saltPassword = async (password) => {
 const createUsuario = async (req, res) => {
     var { nomeUsuario, telefoneUsuario, email, senha } = req.body;
 
-    senha = await saltPassword(senha);
-    
     try {
+        if (senha.length < 6) {
+            return res.status(400).json({ error: 'Password must be at least 6 characters long' })
+        }
+
+        senha = await saltPassword(senha);
         const usuario = await registerUsuario({ nomeUsuario, telefoneUsuario, email, senha });
         const token = createToken(usuario.idUsuario);
         res.cookie('jwt', token, { httpOnly: true, maxAge: MAXAGE * 1000 });
         const data = { usuario: usuario.idUsuario, nomeUsuario: usuario.nomeUsuario, telefoneUsuario: usuario.telefoneUsuario, email: usuario.email }
-        res.status(201).json({ data, token });
+        return res.status(201).json({ data, token });
     }
     catch(err) {
         var msg = '';
@@ -37,7 +40,7 @@ const createUsuario = async (req, res) => {
         }
 
         console.log(err);
-        res.status(400).json(msg);
+        return res.status(400).json(msg);
     }
 };
 
@@ -51,11 +54,11 @@ const login = async (req, res) => {
 
         res.cookie('jwt', token, { httpOnly: true, maxAge: MAXAGE * 1000 });
         const data = { usuario: usuario.idUsuario, nomeUsuario: usuario.nomeUsuario, telefoneUsuario: usuario.telefoneUsuario, email: usuario.email }
-        res.status(200).json({ data, token });
+        return res.status(200).json({ data, token });
     }
     catch(err) {
         console.log(err);
-        res.status(400).json({ error: 'Invalid credentials!' });
+        return res.status(400).json({ error: 'Invalid credentials!' });
     }
 };
 

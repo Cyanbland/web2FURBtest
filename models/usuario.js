@@ -29,7 +29,10 @@ const Usuario = sequelize.define('Usuario', {
     },
     senha: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        validade: {
+            len: [6, 50]
+        }
     },
     telefoneUsuario: {
         type: DataTypes.STRING,
