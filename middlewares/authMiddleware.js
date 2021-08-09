@@ -30,7 +30,7 @@ const checkIfAdmin = (req, res, next) => {
         jwt.verify(token, process.env.SECRET, async (err, decodedToken) => {
             if (err) {
               next();  
-              res.status(401).json({ error: 'Unauthorized access' });
+              return res.status(401).json({ error: 'Unauthorized access' });
             }
             else {
                 console.log(decodedToken);
@@ -41,16 +41,19 @@ const checkIfAdmin = (req, res, next) => {
                     if (admin.isAdmin) {
                         next();
                     }
+                    else {
+                        return res.status(401).json({ error: 'Unauthorized access' });
+                    }
                 }
                 catch(err) {
                     console.log(err);
-                    res.status(500).json({ error: err });
+                    return res.status(500).json({ error: err });
                 }
             }
         });
     }
     else {
-        res.status(401).json({ error: 'Unauthorized access' });
+        return res.status(401).json({ error: 'Unauthorized access' });
     }
 }
 
